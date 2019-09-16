@@ -1,6 +1,24 @@
 from manimlib.imports import *
 
 
+class TitleScreen(Scene):
+    def construct(self):
+        title = TextMobject(
+            r"Learning Correlations in \\Quantum Mechanics\\with Neural Networks"
+        )
+        subtitle = TextMobject("Thesis Presentation, September 23 2019")
+        author = TextMobject("Bendik Samseth")
+        title.shift(UP)
+        subtitle.next_to(title, DOWN * 6)
+        author.next_to(subtitle, DOWN)
+
+        title.scale(1.5)
+
+        self.play(Write(title))
+        self.play(Write(subtitle), Write(author))
+        self.wait()
+
+
 class SchrodingerEquation(Scene):
     def construct(self):
         title = TextMobject("The Schrödinger Equation")
@@ -26,7 +44,7 @@ class SchrodingerEquation(Scene):
         )
         full.next_to(tdse, DOWN + UP)
         full.scale(1.4)
-        self.play(Transform(tdse, full)) #, ApplyMethod(title.shift, UP))
+        self.play(Transform(tdse, full))  # , ApplyMethod(title.shift, UP))
         self.wait()
 
         self.add(full)
