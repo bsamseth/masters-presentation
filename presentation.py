@@ -26,7 +26,7 @@ class SchrodingerEquation(Scene):
         )
         full.next_to(tdse, DOWN + UP)
         full.scale(1.4)
-        self.play(Transform(tdse, full), ApplyMethod(title.shift, UP))
+        self.play(Transform(tdse, full)) #, ApplyMethod(title.shift, UP))
         self.wait()
 
         self.add(full)
