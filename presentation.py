@@ -1,6 +1,8 @@
 from manimlib.imports import *
 
 
+
+
 class SchrodingerEquation(Scene):
     def construct(self):
         title = TextMobject("The Schrödinger Equation")
@@ -62,6 +64,7 @@ class Outline(Scene):
 
         self.play(GrowFromCenter(title), GrowFromCenter(outline))
         self.wait()
+        self.play(FadeOut(title), FadeOut(outline))
 
 
 class TitleScreen(Scene):
