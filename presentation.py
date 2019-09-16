@@ -1,24 +1,6 @@
 from manimlib.imports import *
 
 
-class TitleScreen(Scene):
-    def construct(self):
-        title = TextMobject(
-            r"Learning Correlations in \\Quantum Mechanics\\with Neural Networks"
-        )
-        subtitle = TextMobject("Thesis Presentation, September 23 2019")
-        author = TextMobject("Bendik Samseth")
-        title.shift(UP)
-        subtitle.next_to(title, DOWN * 6)
-        author.next_to(subtitle, DOWN)
-
-        title.scale(1.5)
-
-        self.play(Write(title))
-        self.play(Write(subtitle), Write(author))
-        self.wait()
-
-
 class SchrodingerEquation(Scene):
     def construct(self):
         title = TextMobject("The Schrödinger Equation")
@@ -57,3 +39,45 @@ class SchrodingerEquation(Scene):
         full_full.scale(1.7)
         self.play(Transform(full, full_full), ApplyMethod(title.shift, UP))
         self.wait()
+
+
+class Outline(Scene):
+    def construct(self):
+        title = TextMobject("Outline")
+
+        outline = TextMobject(
+            r"""
+        \begin{itemize}
+        \item Lightning intro to quantum mechanics \\
+              and variational Monte Carlo (VMC)
+        \item Neural networks for VMC
+        \item Results
+        \item Conclusions
+        \end{itemize}
+        """.strip()
+        )
+
+        title.scale(1.5)
+        title.shift(UP * 3)
+
+        self.play(GrowFromCenter(title), GrowFromCenter(outline))
+        self.wait()
+
+
+class TitleScreen(Scene):
+    def construct(self):
+        title = TextMobject(
+            r"Learning Correlations in \\Quantum Mechanics\\with Neural Networks"
+        )
+        subtitle = TextMobject("Thesis Presentation, September 23 2019")
+        author = TextMobject("Bendik Samseth")
+        title.shift(UP)
+        subtitle.next_to(title, DOWN * 6)
+        author.next_to(subtitle, DOWN)
+
+        title.scale(1.5)
+
+        self.play(Write(title))
+        self.play(Write(subtitle), Write(author))
+        self.wait()
+        self.play(FadeOut(title), FadeOut(subtitle), FadeOut(author))
