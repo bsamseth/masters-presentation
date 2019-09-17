@@ -86,8 +86,8 @@ class Newton(Scene):
         self.play(ShowCreation(grid, run_time=1), GrowFromCenter(ball))
         self.wait()
 
-        self.play(ShowCreation(curve))
-        self.play(MoveAlongPath(ball, curve))
+        self.play(ShowCreation(curve), run_time=3)
+        self.play(MoveAlongPath(ball, curve), run_time=3)
 
         self.wait()
 
