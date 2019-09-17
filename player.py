@@ -34,6 +34,7 @@ print(len(frames))
 
 i = 0
 paused = False
+direction = 1
 prev, prev_stop_frame, t0 = 0, 0, 0
 while True:
     frame = frames[i]
@@ -52,13 +53,17 @@ while True:
         i = min(len(frames - 1), i + FPS // 2)
     elif key == ord('q'):
         break
-    elif not paused and i - prev_stop_frame > FPS_SOURCE / 2 and np.all(frame == prev):
+    elif key == ord('h'):
+        direction = -1
+    elif key == ord('l'):
+        direction = 1
+    elif not paused and abs(i - prev_stop_frame) > FPS_SOURCE / 2 and np.all(frame == prev):
         paused = True
         prev_stop_frame = i
 
     prev = frame
     t0 = time.time()
-    i = min(len(frames)-1, i + 1)
+    i = max(0, min(len(frames)-1, i + direction))
 
 
 cv2.destroyAllWindows()
