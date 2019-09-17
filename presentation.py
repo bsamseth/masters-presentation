@@ -3,8 +3,12 @@ from manimlib.imports import *
 
 class SchrodingerEquation(Scene):
     def construct(self):
+        plane = NumberPlane()
         qm = TextMobject("Quantum Mechanics")
+        self.play(FadeInFromLarge(plane, scale_factor=0.1))
         self.play(FadeInFromLarge(qm, scale_factor=0.1))
+        self.wait()
+
         self.play(ApplyMethod(qm.to_corner, UL))
 
         title = TextMobject("The Schrödinger Equation")
