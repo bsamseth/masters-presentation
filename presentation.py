@@ -1,5 +1,28 @@
 from manimlib.imports import *
 
+class Newton(Scene):
+    def construct(self):
+        qm = TextMobject("Quantum Mechanics")
+        self.play(GrowFromCenter(qm))
+        self.wait()
+
+        line = Line((qm.get_corner(UL)+qm.get_corner(DL))/2, (qm.get_corner(UR)+qm.get_corner(DR))/2)
+        self.play(GrowFromEdge(line, LEFT))
+        newton = TextMobject("Classical Mechanics")
+        tmp = TextMobject("Quantum Mechanics ")
+        tmp.shift(LEFT*3)
+        newton.next_to(tmp)
+
+        self.play(ApplyMethod(qm.shift, LEFT*3), ApplyMethod(line.shift, LEFT*3), FadeInFrom(newton, RIGHT))
+        self.wait()
+        self.play(FadeOutAndShift(qm, LEFT), FadeOutAndShift(line, LEFT), ApplyMethod(newton.to_corner, UL))
+        self.wait()
+
+        grid = NumberPlane()
+        self.play(
+            ShowCreation(grid, run_time=1),
+        )
+        self.wait()
 
 
 
