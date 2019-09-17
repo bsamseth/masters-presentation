@@ -4,14 +4,19 @@ import time
 
 FPS = 30
 
+RESOLUTION = "480p15"
+
 scenes = [
-    "media/videos/presentation/480p15/SchrodingerEquation.mp4",
-    "media/videos/presentation/480p15/SchrodingerEquation.mp4",
+    # "TitleScreen",
+    # "Outline",
+    "Newton",
+    "SchrodingerEquation",
 ]
-# scenes = [
-#     "media/videos/presentation/1080p15/SchrodingerEquation.mp4",
-#     "media/videos/presentation/1080p15/SchrodingerEquation.mp4",
-# ]
+
+scenes = [
+    ("media/videos/presentation/{}/" + s + ".mp4").format(RESOLUTION)
+    for s in scenes
+]
 
 i = 0
 t0 = time.time()
