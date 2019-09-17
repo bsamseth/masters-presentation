@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import time
 
-FPS = 30
-
 RESOLUTION = "480p15"
+FPS = 30
+FPS_SOURCE = int(RESOLUTION.split('p')[-1])
 
 scenes = [
     # "TitleScreen",
@@ -18,52 +18,49 @@ scenes = [
     for s in scenes
 ]
 
-i = 0
-t0 = time.time()
-while i < len(scenes):
-    paused = False
-    scene = cv2.VideoCapture(scenes[i])
-    prev, prev_stop_frame = 0, 0
-    print("showing scene", i)
 
-    frame_count = 0
-    while scene.isOpened():
-        if paused:
-            key = cv2.waitKey(0) & 0xFF  # Wait indefinitely
-            if key == ord(" "):
-                paused = not paused
-                prev_stop_frame = frame_count
-                continue
-            elif key == 8:  # 8 == ascii for backspace.
-                i = max(-1, i - 2)
-                break
-            elif key == ord("q"):
-                i = len(scenes)
-                break
-
-        ret, frame = scene.read()
-        if ret:
-            if (
-                not paused
-                and frame_count - prev_stop_frame > FPS / 2
-                and np.all(frame == prev)
-            ):
-                paused = True
-                prev_stop_frame = frame_count
-            prev = frame
-
-            delta = time.time() - t0
-            if cv2.waitKey(max(1, int(1000 * (1 / FPS - delta)))) & 0xFF == ord(" "):
-                paused = not paused
-
-            cv2.imshow("Frame", frame)
-            t0 = time.time()
-
-        else:
+# Compile all scenes:
+frames = []
+for scene in scenes:
+    vid = cv2.VideoCapture(scene)
+    while vid.isOpened():
+        ret, frame = vid.read()
+        if not ret:
             break
-        frame_count += 1
+        frames.append(frame)
+    vid.release()
 
-    i += 1
-    scene.release()
+print(len(frames))
+
+i = 0
+paused = False
+prev, prev_stop_frame, t0 = 0, 0, 0
+while True:
+    frame = frames[i]
+    cv2.imshow("Frame", frame)
+
+    delta = time.time() - t0
+    wait_time = max(1, int(1000 * (1 / FPS - delta))) * int(not paused)
+    key = cv2.waitKey(wait_time) & 0xff
+
+    if key == ord(' '):
+        paused = not paused
+        prev_stop_frame = i
+    elif key == 81:
+        i = max(0, i - FPS // 2)
+    elif key == 85:
+        i = min(len(frames - 1), i + FPS // 2)
+    elif key == ord('q'):
+        break
+    elif not paused and i - prev_stop_frame > FPS_SOURCE / 2 and np.all(frame == prev):
+        paused = True
+        prev_stop_frame = i
+
+    prev = frame
+    t0 = time.time()
+    i = min(len(frames)-1, i + 1)
+
 
 cv2.destroyAllWindows()
+
+
