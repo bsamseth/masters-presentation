@@ -1,28 +1,71 @@
 from manimlib.imports import *
 
+
 class Newton(Scene):
     def construct(self):
         qm = TextMobject("Quantum Mechanics")
         self.play(GrowFromCenter(qm))
         self.wait()
 
-        line = Line((qm.get_corner(UL)+qm.get_corner(DL))/2, (qm.get_corner(UR)+qm.get_corner(DR))/2)
+        line = Line(
+            (qm.get_corner(UL) + qm.get_corner(DL)) / 2,
+            (qm.get_corner(UR) + qm.get_corner(DR)) / 2,
+        )
         self.play(GrowFromEdge(line, LEFT))
         newton = TextMobject("Classical Mechanics")
         tmp = TextMobject("Quantum Mechanics ")
-        tmp.shift(LEFT*3)
+        tmp.shift(LEFT * 3)
         newton.next_to(tmp)
 
-        self.play(ApplyMethod(qm.shift, LEFT*3), ApplyMethod(line.shift, LEFT*3), FadeInFrom(newton, RIGHT))
-        self.wait()
-        self.play(FadeOutAndShift(qm, LEFT), FadeOutAndShift(line, LEFT), ApplyMethod(newton.to_corner, UL))
-        self.wait()
-
-        grid = NumberPlane()
         self.play(
-            ShowCreation(grid, run_time=1),
+            ApplyMethod(qm.shift, LEFT * 3),
+            ApplyMethod(line.shift, LEFT * 3),
+            FadeInFrom(newton, RIGHT),
         )
         self.wait()
+
+        self.play(
+            FadeOutAndShift(qm, LEFT),
+            FadeOutAndShift(line, LEFT),
+            ApplyMethod(newton.to_corner, UL),
+        )
+        self.wait()
+
+        grid = Axes(center_point=ORIGIN+DOWN*3 + LEFT*4, x_min=-1, x_max=10)
+        curve = FunctionGraph(lambda t: -.25 * t**2 + 1, x_min=-4, x_max=4, color=YELLOW_E, opacity=0.3)
+        ball = Dot(radius=0.3, color=MAROON_E, opacity=1)
+        ball.set_fill(MAROON_D, opacity=1)
+        ball.move_to(curve.points[0])
+
+        group = VGroup(grid, curve, ball)
+
+        self.play(ShowCreation(grid, run_time=1), GrowFromCenter(ball))
+        self.play(ShowCreation(curve))
+        self.play(MoveAlongPath(ball, curve))
+
+        self.wait()
+
+        newton_sub = TextMobject("Newton's 2. Law of Motion")
+        newton_eq = TexMobject(r"F = ma")
+        newton_sub.move_to(ORIGIN + UP)
+        newton_eq.move_to(newton_sub.get_center()+ 2*DOWN)
+        newton_eq.scale(1.5)
+
+        newton_group = VGroup(newton_sub, newton_eq)
+
+        self.play(FadeOutAndShift(group, DOWN))
+        self.play(GrowFromCenter(newton_sub), Write(newton_eq))
+        self.wait()
+
+        newton_solved = TexMobject(r"x(t) = -\frac{g}{2}t^2 + v_0t + x_0")
+        arrow = Vector(direction=DOWN)
+        arrow.move_to(newton_eq.get_center())
+        newton_solved.next_to(arrow, DOWN)
+
+        self.play(ApplyMethod(newton_group.shift, UP), GrowFromEdge(arrow, UP), GrowFromEdge(newton_solved, UP))
+        self.wait()
+
+        self.play(FadeOut(VGroup(newton_group, arrow, newton_solved, newton)))
 
 
 
