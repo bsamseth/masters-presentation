@@ -1,41 +1,157 @@
 from manimlib.imports import *
 import numpy as np
+import re
 
 
 sys.path.append(os.path.dirname(__file__))
 from nncode import NetworkScene
 
+class ThankYou(Scene):
+    def construct(self):
+        thanks = TextMobject(r"Thank you for listening!")
+        self.play(Write(thanks))
+        self.wait()
+        self.play(FadeOut(thanks))
+
+class FutureProspects(Scene):
+    def construct(self):
+        title = TextMobject("Future Prospects")
+
+        outline = TextMobject(
+            r"""
+        \begin{itemize}
+            \item Incorporate GPU acceleration
+            \item Investigate fermionic systems.
+            \item Apply different network types and \\
+                    training strategies.
+        \end{itemize}
+        """.strip()
+        )
+
+        title.scale(1.5)
+        title.shift(UP * 2.5)
+        outline.scale(0.9)
+        outline.shift(DOWN * 0.8)
+
+        self.play(GrowFromCenter(title), GrowFromCenter(outline))
+        self.wait()
+        self.play(FadeOut(title), FadeOut(outline))
+
+
+class Conclusions(Scene):
+    def construct(self):
+        title = TextMobject("Conclusions")
+
+        outline = TextMobject(
+            r"""
+        \begin{itemize}
+            \item Neural networks capable of improving accuracy of \\existing VMC approaches.
+            \item Still requires trail and error to find suitable architectures.
+            \item Requires significantly more computing time.
+            \begin{itemize}
+                \item Asymptotic time-complexity unchanged.
+                \item GPU parallelization can potentially speed up significantly
+            \end{itemize}
+            \item Demonstrates that discriminating models can be used,\\
+                  not only generative.
+        \end{itemize}
+        """.strip()
+        )
+
+        title.scale(1.5)
+        title.shift(UP * 3)
+        outline.scale(0.9)
+        outline.shift(DOWN * 0.8)
+
+        self.play(GrowFromCenter(title), GrowFromCenter(outline))
+        self.wait()
+        self.play(FadeOut(title), FadeOut(outline))
+
+
 class QDResults(GraphScene):
     CONFIG = {
-        "x_min": -0,
+        "x_min": 0,
         "x_max": 100,
         "y_min": 0,
-        "y_max": 10,
+        "y_max": 6,
         "graph_origin": DL,
-        "y_axis_label": r"$E$",
-        "graph_origin": ORIGIN + 2 * DOWN + 4 * LEFT,
+        "y_axis_label": r"$-\log \abs{E-E_0}$",
+        "graph_origin": ORIGIN + 2.5 * DOWN + 4 * LEFT,
         "function_color": RED_E,
         "axes_color": BLUE_E,
         "x_tick_frequency": 10,
         "x_axis_label": r"\% of iterations",
-        "x_labeled_nums": range(0,101,10),
-        "y_labeled_nums": range(0,11,1),
-
+        "x_labeled_nums": range(0, 101, 10),
+        "y_labeled_nums": range(0, 7),
     }
 
     def construct(self):
+        steps, bench_data, _, dnn_data, _, sdnn_data = np.loadtxt("qd-results.txt").T
+
+        results = TextMobject(r"Results: Quantum dots (2 electrons, 2 dimensions)")
+        qd_eq = TexMobject(
+            r"V(\mathbf{x}_1, \mathbf{x}_2) =  \sum_{i=1}^N\norm{\mathbf{x}_i}^2"
+            + r"+ \frac{1}{r_{12}}"
+        )
+        qd_base = TexMobject(
+            r"\psi_\text{PJ}(\mathbf{x}_1, \mathbf{x}_2) = \exp(-\alpha \sum_{i=1}^N \norm{\mathbf{x}_i}^2)",
+            r"\exp(\frac{r_{12}}{1 + \beta r_{12}})"
+        )
+        qd_nn = TexMobject(
+            r"\psi_\text{NN}(\mathbf{x}_1, \mathbf{x}_2) =\psi_\text{PJ}(\mathbf{x}_1, \mathbf{x}_2)"
+            r"\times \text{NN}(\mathbf{x}_1, \mathbf{x}_2)"
+        )
+
+        results.to_edge(UP)
+        qd_eq.next_to(results, DOWN)
+        qd_base.move_to(ORIGIN)
+        qd_nn.next_to(qd_base, DOWN)
+
+        self.play(FadeIn(results))
+        self.play(Write(qd_eq))
+        self.play(Write(qd_base))
+        self.play(Write(qd_nn))
+        self.wait()
+        self.play(*[FadeOut(obj) for obj in [results, qd_eq, qd_base, qd_nn]])
+
         self.setup_axes(animate=True)
         self.wait()
+
+        bench_graph = self.get_graph(lambda x: -np.log10(bench_data[int(x)]))
+        dnn_graph = self.get_graph(lambda x: -np.log10(dnn_data[int(x)]))
+        # graph_label = self.get_graph_label(
+        #     gauss, label=r"\psi(x) = \exp(\alpha x^2)", x_val=-1, direction=LEFT * 2.5
+        # )
+
+        bench_label = self.get_graph_label(
+            bench_graph, label=r"\psi_\text{original}", x_val=100, direction=DR
+        )
+        dnn_label = self.get_graph_label(
+            dnn_graph, label=r"\psi_\text{NN}", x_val=100, direction=DR
+        )
+
+        self.play(Write(bench_label))
+        self.play(
+            ShowCreation(bench_graph), run_time=4, rate_func=lambda x: smooth(x, 12)
+        )
+        self.play(Write(dnn_label))
+        self.play(ShowCreation(dnn_graph), run_time=7, rate_func=linear)
+        self.wait()
+
+        self.play(
+            *[
+                FadeOut(obj)
+                for obj in [bench_graph, dnn_graph, bench_label, dnn_label, self.axes]
+            ]
+        )
 
 
 class NetworkDisplay(NetworkScene):
     CONFIG = {"layer_sizes": [4, 10, 8, 1], "network_mob_config": {}}
+
     def make_mob(self, layer_sizes):
         network = Network(sizes=layer_sizes)
-        network_mob = NetworkMobject(
-            network,
-            **self.network_mob_config
-        )
+        network_mob = NetworkMobject(network, **self.network_mob_config)
         return network, mob
 
     def construct(self):
@@ -108,7 +224,7 @@ class PsiDesign(Scene):
             r"V(\mathbf{x}_1, \mathbf{x_2},\dots,\mathbf{x}_N) = \frac{1}{2}\sum_{i=1}^N\norm{\mathbf{x}_i}^2"
         )
         qd_eq = TexMobject(
-            r"V(\mathbf{x}_1, \mathbf{x}_2,\dots,\mathbf{x}_N) =  \sum_{i=1}^N\norm{\mathbf{x}_i}^2"
+            r"V(\mathbf{x}_1, \mathbf{x}_2,\dots,\mathbf{x}_N) =  \frac{1}{2}\sum_{i=1}^N\norm{\mathbf{x}_i}^2"
             + r"+ \sum_{i < j}\frac{1}{r_{ij}}"
         )
 
