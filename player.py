@@ -7,19 +7,19 @@ from collections import deque
 import threading
 
 # Low Quality
-PAUSE_INDICATOR = (-1, 0)
-RESOLUTION = "480p15"
-FPS = 15
+# PAUSE_INDICATOR = (-1, 0)
+# RESOLUTION = "480p15"
+# FPS = 15
 
 # Production quality
-# PAUSE_INDICATOR = (-1, 0)
-# RESOLUTION = "1440p60"
-# FPS = 60
+PAUSE_INDICATOR = (-1, 0)
+RESOLUTION = "1440p60"
+FPS = 60
 
-# cv2.namedWindow("Frame", 0);
-# cv2.resizeWindow("Frame", *[int(d) for d in RESOLUTION.split('p')])
-# cv2.namedWindow("Frame", cv2.WND_PROP_FULLSCREEN)
-# cv2.setWindowProperty("Frame",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+cv2.namedWindow("Frame", 0);
+cv2.resizeWindow("Frame", *[int(d) for d in RESOLUTION.split('p')])
+cv2.namedWindow("Frame", cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty("Frame",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
 scenes = [
     "TitleScreen",
@@ -33,6 +33,7 @@ scenes = [
     "NewIdea",
     "NetworkDisplay",
     "QDResults",
+    "HeliumResults",
     "Conclusions",
     "FutureProspects",
     "ThankYou",

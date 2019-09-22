@@ -33,7 +33,7 @@ class FutureProspects(Scene):
         outline = TextMobject(
             r"""
         \begin{itemize}
-            \item Incorporate GPU acceleration
+            \item Incorporate GPU acceleration.
             \item Investigate fermionic systems.
             \item Apply different network types and \\
                     training strategies.
@@ -63,7 +63,7 @@ class Conclusions(Scene):
             \item Requires significantly more computing time.
             \begin{itemize}
                 \item Asymptotic time-complexity unchanged.
-                \item GPU parallelization can potentially speed up significantly
+                \item GPU parallelization can potentially speed up significantly.
             \end{itemize}
             \item Demonstrates that discriminating models can be used,\\
                   not only generative.
@@ -80,6 +80,79 @@ class Conclusions(Scene):
         wait(self)
         self.play(FadeOut(title), FadeOut(outline))
 
+
+class HeliumResults(GraphScene):
+    CONFIG = {
+        "x_min": 0,
+        "x_max": 100,
+        "y_min": 0,
+        "y_max": 8,
+        "graph_origin": DL,
+        "y_axis_label": r"$E \ [dK/ N] (+7\,K/N)$",
+        "graph_origin": ORIGIN + 2.5 * DOWN + 4 * LEFT,
+        "function_color": RED_E,
+        "axes_color": BLUE_E,
+        "x_tick_frequency": 10,
+        "x_axis_label": r"\% of iterations",
+        "x_labeled_nums": range(0, 101, 10),
+        "y_labeled_nums": range(0, 8),
+    }
+
+    def construct(self):
+        steps, bench_data, _, dnn_data, _, sdnn_data = np.loadtxt("he-results.txt")[::5].T
+
+        results = TextMobject(r"Results: Liquid helium (32 $^4$He atoms, 3 dimensions)")
+        he_eq = TexMobject(
+            r"V(\mathbf{x}) = \sum_{i<j} 4\epsilon\qty[\qty(\frac{\sigma}{r_{ij}})^{12} - \qty(\frac{\sigma}{r_{ij}})^6]"
+        )
+        he_base = TexMobject(
+            r"\psi_\text{M}(\mathbf{x}) = \exp(-\frac{1}{2}\sum_{i<j} \qty(\frac{\beta}{r_{ij}})^5)"
+        )
+        he_nn = TexMobject(
+            r"\psi_\text{NN}(\mathbf{x}) =\psi_\text{M}(\mathbf{x})"
+            r"\times \text{NN}(\mathbf{x})"
+        )
+
+        results.to_edge(UP)
+        he_eq.next_to(results, DOWN)
+        he_base.move_to(ORIGIN)
+        he_nn.next_to(he_base, DOWN)
+
+        self.play(FadeIn(results))
+        self.play(Write(he_eq))
+        self.play(Write(he_base))
+        self.play(Write(he_nn))
+        wait(self)
+        self.play(*[FadeOut(obj) for obj in [results, he_eq, he_base, he_nn]])
+
+        self.setup_axes(animate=True)
+        wait(self)
+
+        bench_graph = self.get_graph(lambda x: 10*(7 + bench_data[int(min(99, x))]))
+        dnn_graph = self.get_graph(lambda x: 10 * (7 + sdnn_data[int(min(99, x))]))
+
+        bench_label = self.get_graph_label(
+            bench_graph, label=r"\psi_\text{M}", x_val=100, direction=UR
+        )
+        dnn_label = self.get_graph_label(
+            dnn_graph, label=r"\psi_\text{NN}", x_val=100, direction=RIGHT
+        )
+
+        self.play(Write(bench_label))
+        self.play(
+            ShowCreation(bench_graph), run_time=4, rate_func=lambda x: smooth(x, 12)
+        )
+        wait(self)
+        self.play(Write(dnn_label))
+        self.play(ShowCreation(dnn_graph), run_time=7, rate_func=linear)
+        wait(self)
+
+        self.play(
+            *[
+                FadeOut(obj)
+                for obj in [bench_graph, dnn_graph, bench_label, dnn_label, self.axes]
+            ]
+        )
 
 class QDResults(GraphScene):
     CONFIG = {
@@ -373,7 +446,7 @@ class VMC(GraphScene):
         self.setup_axes(animate=True)
         gauss = self.get_graph(self.gaussian, self.function_color)
         graph_label = self.get_graph_label(
-            gauss, label=r"\psi(x) = \exp(\alpha x^2)", x_val=-1, direction=LEFT * 2.5
+            gauss, label=r"\psi(x) = \exp(-\alpha x^2)", x_val=-1, direction=LEFT * 2.5
         )
         alpha_label = TexMobject(r"0.5")
         arrow = Vector(direction=DOWN)
