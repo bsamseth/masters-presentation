@@ -17,7 +17,7 @@ RESOLUTION = "1440p60"
 FPS = 60
 
 cv2.namedWindow("Frame", 0);
-cv2.resizeWindow("Frame", *[int(d) for d in RESOLUTION.split('p')])
+cv2.resizeWindow("Frame", 2560, 1440)
 cv2.namedWindow("Frame", cv2.WND_PROP_FULLSCREEN)
 cv2.setWindowProperty("Frame",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
