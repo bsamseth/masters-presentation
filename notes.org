@@ -189,6 +189,30 @@
     - after a bit, stumbles on a good change and refines this over the rest of the run
     - remember log axis, more than 10 times less error
     - variance also less, although it seems more due to log axis
+ 
+* Liquid Helium
+
+  - Different system
+    - We cannot solve this exactly, much harder
+    - Lots of helium atoms packed together, no external potential
+    - only interactions between atoms
+    - we simulate using a finite amount of atoms at a given density
+    - interaction potential not known exactly from theory, but modeled using e.g. this
+    - Traditional guesses include more complicated versions, but for comparison only
+    - once again psi_nn is the same with another network added on
+    - network different, much bigger because of more inputs
+   
+  - Similar graph
+    - xaxis again the percentage of training complete
+    - y axis now shows the energy, *not* the error this time.
+    - units of deci kelvin per particle, shifted by 7
+    - Lower is better
+  - psi_m
+    - Quickly converges
+    - More variance due to harder problem, greater approximation
+  - psi_nn
+    - While less substantial, there is a clear lowering of the energy
+    - Proved much harder to obtain, less flex in model architecture
 
 
 * Conclusions
