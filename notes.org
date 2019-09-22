@@ -1,0 +1,216 @@
+* Title Screen
+
+  - Welcome
+  - Thank you
+
+* Outline
+
+** Target audience
+  - Presentation will be high level, details will be left out
+  - Intention is that non-technical attendees can follow
+  - Details and rigor can be found in the thesis
+
+** Not motivating QM
+
+   - Due to time constraints, assume QM is interesting
+ 
+** Outline
+
+   - Very quick introduction to the fundamental concepts
+   - Touch on NN
+   - Show results
+   - Conclude
+
+* Classical Mechanics
+
+** Putting QM in context
+
+   - Before diving into QM, let's put the framework in easier context
+   - Classical mechanics constitutes the physical laws that govern our normal world of things
+   - Simple example: Throwing a ball
+   - Want to calculate the trajectory
+** Newtons 2. Law
+   - We get this by applying N2L
+   - m is the mass of the ball, a its acceleration
+   - F is total force acting on the ball from its surroundings (gravity, air resistance etc.)
+   - While sometimes F can be complicated, solution is straightforward to obtain
+   - Solution is a function
+     - time is input
+     - output is the position of the ball at that time
+   - From position function, obtain anything
+   - As such it is "solved"
+   
+
+* Schrodinger Equation
+
+  - If we zoom in, CM breaks down and QM is the new governing theory
+  - Instead of N2L we have SE
+  - One formulation of SE
+    - E is a plain number, the energy, coming back to later
+    - H is a shorthand, like F contains the description of the system
+      - Unlike N2L which uses forced, SE expresses system in terms of energy
+    - psi is the so called wave function
+      - Like position for N2L, we solve the equation for this function
+      - and like position, we can get anything once we have psi
+      - what it is, tells us about probability of state
+        - input desc of state, output low => unlikey etc
+  - Add time
+    - E changes to derivative
+      - hbar is a constant
+      - i is the imaginary unit
+  - Expand H
+    - Will depend on the system
+      - Kinetic and potential energy
+      - V is yet another shorthand
+  - Add more particles
+  - Point is that this equation is hard to solve
+    - some ideal cases solvable
+    - generally not feasible
+    - approximate methods necessary
+      - depending on trade-off accuracy vs time
+    - thesis about extension of one such method
+  - Back down to time-independent
+    - This is the form of SE we work with
+   
+  - Solving = finding psi
+  - Before jumping into solving, lets visualize what an example system looks like
+    by specifying V
+
+* Harmonic Oscillator
+
+** Simple
+
+  - An electron in one dimension, a potential well
+  - Think marble moving around, on average located at the bottom
+  - Lets add one more electron
+
+** With Coulomb
+
+   - Interaction term repels electrons, cannot be at same point.
+   - Illustration not accurate, more dimensions + not classical
+   - This is one of the systems we will investigate
+
+* VMC
+
+  - System defined, how to solve?
+  - Pen and paper out of the question
+  - We make an educated guess about what the solution is
+  - Method actually called variational Monte Carlo
+    - variational part speaks to repeatedly guessing
+  - Lets take the single electrons in the potential well and look at a guess for the solution
+
+** Plot on screen
+
+   - See a graph of psi(x)
+   - psi contains a free parameter alpha, currently set to .5
+   - What now? Evaluate goodness
+     + Use wave func to predict energy
+     + Computing this integral (skipping a lot of technical details)
+     + Equals something in some unit
+     + Fundamental principle tells us that nature finds the most energy efficient state,
+       - means that lowest energy is the most accurate psi
+     + Then change the parameter slightly
+     + Energy changes
+       - If better, keep
+       - if worse, discard
+     + Repeat
+     + Optimal parameter is the one corr. to lowest energy.
+     + We can compute which way to tune the parameter as well
+       + not which value is best, but if larger or smaller is better
+     + This is actually the exact correct function in this case.
+    
+
+* What to Guess
+
+  - How do we know what to guess
+    - Theory from simpler approximations
+    - Beyond that physicists have to use insight, imagination and trial and error
+
+* Psi design
+
+  - Simple harmonic oscillator
+    - One or more electrons, *but* not interacting (ignoring each other)
+      - Simplifying approximation
+    - Can work out solution directly
+  - With interaction, sometimes called quantum dots
+    - r_ij denotes the distance between particle i and j 
+    - Can start with putting back alpha, letting it vary
+    - Not good enough
+      - Typical approach is to add another factor
+      - Called a correlation factor, or pade-jastrow
+      - Meant to account for all our ignorance
+      - Beta is another free parameter
+      - Good correlation factors hard to make
+      - This case works really well, other times we have less good ideas
+  - Question now is can we do better?
+
+* New Idea
+  
+  - Idea of this thesis: Tack on a nn on the existing psi guesses.
+  - Neural networks are a family of expressive and flexible computational models
+  - capable of tuning it self to model just about anything (if done right)
+  - idea not unique, with articles on similar ideas have surfaced in the last years
+  - original idea at time of starting, still to some degree
+
+* Network Display
+
+  - Lighting high level overview, what is a nn?
+  - Many variants, focus on the traditional fully connected feed forward
+  - we push some numbers on the inputs, 
+  - complex web of multiplications and additions combine them in all sorts of ways,
+  - pumps out a single number 
+  - each operation has its own free parameter (flexible)
+
+  - inputs are the description of the state (coordinates)
+  - output is our correlation function
+
+  - Let's see how it works
+
+* Quantum Dots Results
+
+  - Recap
+    - Looking at two electrons in 2D, because we have the exact answer here (nice to compare performance)
+    - Potential looks like so,
+    - psi_pj is the traditional wave function guess, our base line for comparison
+    - psi_nn denotes the same thing with the extra nn on the end
+   
+  - graph
+    - xaxis shows the percentage of training complete
+      - an iteration is a tweak of parameters + an energy evaluation
+      - We do thousands and thousands of these
+    - yaxis show the neg log of the error
+      - we know the correct value here, so we can measure error
+      - neg log means we want large numbers - small errors
+  - psi_pj 
+    - on this time scale quickly finds a set of good parameters and settles
+    - variance due to inexact approximation + the way the energy integral is computed
+  - psi_nn
+    - Starts of equally, where the original part of it dominates the improvements
+    - after a bit, stumbles on a good change and refines this over the rest of the run
+    - remember log axis, more than 10 times less error
+    - variance also less, although it seems more due to log axis
+
+
+* Conclusions
+
+  - In summary, we've shown that nns can improve upon existing results
+  - Not plug and play, requires tuning and trial and error
+    - Positive is that model is flexible enough to allow for rapid modifications
+  - The downside is increased computation cost
+    - Quite significant in this case
+    - argument for time scaling about with increasing number of particles
+    - constant difference, but a large one
+    - GPU will help with this 
+  - Focus in this developing field seems to be mostly around generative models,
+    this shows disc. also suitable.
+
+* Future Prospects
+
+  - Many potential ways to improve from here
+  - Most importantly GPU
+  - Fermionic systems (only considered bosons for now)
+  - So much room for improvements on network types as well as ways of optimizing it
+
+* Thank You
+
+
