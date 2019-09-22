@@ -6,12 +6,25 @@ import re
 sys.path.append(os.path.dirname(__file__))
 from nncode import NetworkScene
 
+
+def wait(self):
+    square = Square(
+        side_length=0.2, fill_color="#ff0000", fill_opacity=1, stroke_opacity=0
+    )
+    square.move_to([-7.1, -4, 1])
+    self.add(square)
+    self.wait(.1)
+    self.remove(square)
+
+
 class ThankYou(Scene):
     def construct(self):
         thanks = TextMobject(r"Thank you for listening!")
         self.play(Write(thanks))
-        self.wait()
+        wait(self)
+        # wait(self)
         self.play(FadeOut(thanks))
+
 
 class FutureProspects(Scene):
     def construct(self):
@@ -34,7 +47,7 @@ class FutureProspects(Scene):
         outline.shift(DOWN * 0.8)
 
         self.play(GrowFromCenter(title), GrowFromCenter(outline))
-        self.wait()
+        wait(self)
         self.play(FadeOut(title), FadeOut(outline))
 
 
@@ -64,7 +77,7 @@ class Conclusions(Scene):
         outline.shift(DOWN * 0.8)
 
         self.play(GrowFromCenter(title), GrowFromCenter(outline))
-        self.wait()
+        wait(self)
         self.play(FadeOut(title), FadeOut(outline))
 
 
@@ -90,12 +103,12 @@ class QDResults(GraphScene):
 
         results = TextMobject(r"Results: Quantum dots (2 electrons, 2 dimensions)")
         qd_eq = TexMobject(
-            r"V(\mathbf{x}_1, \mathbf{x}_2) =  \sum_{i=1}^N\norm{\mathbf{x}_i}^2"
+            r"V(\mathbf{x}_1, \mathbf{x}_2) =  \frac{1}{2}\sum_{i=1}^N\norm{\mathbf{x}_i}^2"
             + r"+ \frac{1}{r_{12}}"
         )
         qd_base = TexMobject(
             r"\psi_\text{PJ}(\mathbf{x}_1, \mathbf{x}_2) = \exp(-\alpha \sum_{i=1}^N \norm{\mathbf{x}_i}^2)",
-            r"\exp(\frac{r_{12}}{1 + \beta r_{12}})"
+            r"\exp(\frac{r_{12}}{1 + \beta r_{12}})",
         )
         qd_nn = TexMobject(
             r"\psi_\text{NN}(\mathbf{x}_1, \mathbf{x}_2) =\psi_\text{PJ}(\mathbf{x}_1, \mathbf{x}_2)"
@@ -111,11 +124,11 @@ class QDResults(GraphScene):
         self.play(Write(qd_eq))
         self.play(Write(qd_base))
         self.play(Write(qd_nn))
-        self.wait()
+        wait(self)
         self.play(*[FadeOut(obj) for obj in [results, qd_eq, qd_base, qd_nn]])
 
         self.setup_axes(animate=True)
-        self.wait()
+        wait(self)
 
         bench_graph = self.get_graph(lambda x: -np.log10(bench_data[int(x)]))
         dnn_graph = self.get_graph(lambda x: -np.log10(dnn_data[int(x)]))
@@ -124,7 +137,7 @@ class QDResults(GraphScene):
         # )
 
         bench_label = self.get_graph_label(
-            bench_graph, label=r"\psi_\text{original}", x_val=100, direction=DR
+            bench_graph, label=r"\psi_\text{PJ}", x_val=100, direction=DR
         )
         dnn_label = self.get_graph_label(
             dnn_graph, label=r"\psi_\text{NN}", x_val=100, direction=DR
@@ -134,9 +147,10 @@ class QDResults(GraphScene):
         self.play(
             ShowCreation(bench_graph), run_time=4, rate_func=lambda x: smooth(x, 12)
         )
+        wait(self)
         self.play(Write(dnn_label))
         self.play(ShowCreation(dnn_graph), run_time=7, rate_func=linear)
-        self.wait()
+        wait(self)
 
         self.play(
             *[
@@ -160,8 +174,9 @@ class NetworkDisplay(NetworkScene):
         title = TextMobject(r"Neural Networks")
         title.to_corner(UL)
         self.play(FadeIn(title))
+        wait(self)
         self.play(Write(self.network_mob), run_time=3)
-        self.wait()
+        wait(self)
 
         arrows = [Vector(direction=RIGHT) for _ in range(self.layer_sizes[0])]
         [
@@ -183,6 +198,8 @@ class NetworkDisplay(NetworkScene):
         self.play(*[FadeInFrom(ar, RIGHT) for ar in arrows])
         self.play(*[Write(l) for l in labels])
 
+        wait(self)
+
         outarrow = Vector(Direction=RIGHT)
         out = TexMobject(r"\text{NN}(\mathbf{x})")
 
@@ -194,7 +211,9 @@ class NetworkDisplay(NetworkScene):
         self.play(FadeInFrom(outarrow, LEFT))
         self.play(ShowCreation(out))
 
-        self.wait()
+        wait(self)
+
+        self.play(*[FadeOut(obj) for obj in [title, out, outarrow, self.network_mob] + labels + arrows])
 
 
 class NewIdea(Scene):
@@ -213,7 +232,8 @@ class NewIdea(Scene):
         self.play(ShowCreation(idea1))
         self.play(ShowCreation(idea2))
         self.play(Write(psi))
-        self.wait()
+        wait(self)
+        self.play(*[FadeOut(obj) for obj in [idea1, idea2, psi]])
 
 
 class PsiDesign(Scene):
@@ -239,30 +259,33 @@ class PsiDesign(Scene):
         tmp.shift(2 * LEFT)
         qd_jastrow.next_to(tmp, RIGHT)
 
-        for label, eq in zip([ho, qd], [ho_eq, qd_eq]):
-            label.move_to(UP * 2 + LEFT * 5)
-            eq.next_to(label, RIGHT)
+
+        ho.move_to(UP * 2 + LEFT * 4)
+        ho_eq.next_to(ho, RIGHT)
+        qd.move_to(UP * 2 + LEFT * 5)
+        qd_eq.next_to(qd, RIGHT)
+
 
         self.play(ShowCreation(ho), Write(ho_eq))
         self.play(Write(ho_psi))
-        self.wait()
+        wait(self)
         self.play(Transform(ho, qd), Transform(ho_eq, qd_eq))
-        self.wait()
+        wait(self)
         self.play(Transform(ho_psi, qd_base))
-        self.wait()
+        wait(self)
         self.play(ApplyMethod(ho_psi.shift, LEFT * 2))
         self.play(Write(qd_jastrow))
-        self.wait()
+        wait(self)
 
         dobetter = TextMobject("Can we do better?")
         dobetter.move_to(DOWN * 2)
         self.play(FadeIn(dobetter))
-        self.wait()
+        wait(self)
 
         self.play(
             *[
                 FadeOut(obj)
-                for obj in (dobetter, qd_jastrow, qd_base, ho_psi, ho, qd, ho_eq, qd_eq)
+                for obj in (dobetter, qd_jastrow, ho_psi, ho, ho_eq )
             ]
         )
 
@@ -294,11 +317,11 @@ class WhatToGuess(Scene):
         list2.next_to(how2, DOWN * 2)
 
         self.play(ShowCreation(how), ShowCreation(how2))
-        self.wait()
+        wait(self)
         self.play(ShowCreation(list1))
-        self.wait()
+        wait(self)
         self.play(Transform(list1, list2))
-        self.wait()
+        wait(self)
 
         self.play(*[FadeOut(obj) for obj in [list1, how, how2]])
 
@@ -326,9 +349,9 @@ class VMC(GraphScene):
         guessing = TextMobject(r"\textbf{Educated guessing}")
         guessing.shift(DOWN)
         self.play(*[FadeIn(t) for t in title])
-        self.wait()
+        wait(self)
         self.play(FadeIn(guessing))
-        self.wait()
+        wait(self)
 
         line = Line(
             (guessing.get_corner(UL) + guessing.get_corner(DL)) / 2,
@@ -338,7 +361,7 @@ class VMC(GraphScene):
         vmc = TextMobject(r"\textbf{Variational Monte Carlo (VMC)}")
         vmc.next_to(guessing, DOWN)
         self.play(ShowCreation(vmc))
-        self.wait()
+        wait(self)
 
         vmc_short = TextMobject(r"\textbf{VMC}")
         vmc_short.move_to(vmc)
@@ -362,9 +385,9 @@ class VMC(GraphScene):
         self.play(ShowCreation(gauss), run_time=2)
         self.play(Write(graph_label))
         self.play(FadeInFrom(alpha_label, DOWN), FadeInFrom(arrow, DOWN))
-        self.wait()
+        wait(self)
         # self.play(FadeOut(alpha_label), FadeOut(arrow))
-        # self.wait()
+        # wait(self)
 
         energy = TexMobject(
             r"E = \frac{\int \psi^*\hat H\psi\dd{x}}{\int \abs{\psi}^2\dd{x}}"
@@ -373,8 +396,9 @@ class VMC(GraphScene):
         energy.move_to(RIGHT * 3 + UP * 1.5)
         energy_value.next_to(energy, RIGHT)
         self.play(ShowCreation(energy))
-        self.wait()
+        wait(self)
         self.play(ShowCreation(energy_value))
+        wait(self)
 
         alpha_label_5 = TexMobject(r"0.5")
         alpha_label_2 = TexMobject(r"0.2")
@@ -397,7 +421,7 @@ class VMC(GraphScene):
             Transform(energy_value, energy_value_2),
             run_time=2,
         )
-        self.wait()
+        wait(self)
         self.play(
             Transform(
                 gauss,
@@ -407,7 +431,7 @@ class VMC(GraphScene):
             Transform(energy_value, energy_value_8),
             run_time=2,
         )
-        self.wait()
+        wait(self)
         self.play(
             Transform(
                 gauss,
@@ -417,7 +441,7 @@ class VMC(GraphScene):
             Transform(energy_value, energy_value_5),
             run_time=2,
         )
-        self.wait()
+        wait(self)
         self.play(
             *[
                 FadeOut(obj)
@@ -489,14 +513,14 @@ class HarmonicOscillator(Scene):
         self.play_forward([electron], [path], FadeIn(title), Write(eq))
         self.play_forward([electron], [path])
 
-        self.wait()
+        wait(self)
         self.play(GrowFromCenter(electron2), Transform(eq, eq_col))
         self.play_forward([electron, electron2], [path_short, path_short_reverse])
         self.play_forward([electron, electron2], [path_short, path_short_reverse])
         self.play_forward([electron, electron2], [path_short, path_short_reverse])
         self.play_forward([electron, electron2], [path_short, path_short_reverse])
 
-        self.wait()
+        wait(self)
         self.play(
             *[FadeOut(obj) for obj in [electron, electron2, well, eq, eq_col, title]]
         )
@@ -508,7 +532,7 @@ class SchrodingerEquation(Scene):
         qm = TextMobject("Quantum Mechanics")
         self.play(FadeInFromLarge(plane, scale_factor=0.1))
         self.play(FadeInFromLarge(qm, scale_factor=0.1))
-        self.wait()
+        wait(self)
 
         self.play(ApplyMethod(qm.to_corner, UL))
 
@@ -519,13 +543,13 @@ class SchrodingerEquation(Scene):
 
         self.play(Write(title))
         self.play(FadeInFrom(tise, UP))
-        self.wait()
+        wait(self)
 
         tdse = TexMobject(r"\hat H\ket\Psi = i\hbar\pdv{}{t}\ket\Psi")
         tdse.next_to(tise, DOWN + UP)
         tdse.scale(1.2)
         self.play(Transform(tise, tdse), ApplyMethod(title.shift, UP))
-        self.wait()
+        wait(self)
 
         # self.add(tdse)
         self.remove(tise)
@@ -536,7 +560,7 @@ class SchrodingerEquation(Scene):
         full.next_to(tdse, DOWN + UP)
         full.scale(1.4)
         self.play(Transform(tdse, full))  # , ApplyMethod(title.shift, UP))
-        self.wait()
+        wait(self)
 
         self.remove(tdse)
 
@@ -546,7 +570,7 @@ class SchrodingerEquation(Scene):
         full_full.next_to(full, DOWN + UP)
         full_full.scale(1.7)
         self.play(Transform(full, full_full), ApplyMethod(title.shift, UP))
-        self.wait()
+        wait(self)
 
         self.remove(full)
 
@@ -556,7 +580,7 @@ class SchrodingerEquation(Scene):
         final.next_to(full_full, DOWN + UP)
         final.scale(1.3)
         self.play(Transform(full_full, final))  # , ApplyMethod(title.shift, DOWN))
-        self.wait()
+        wait(self)
 
         self.remove(full_full)
 
@@ -572,7 +596,7 @@ class SchrodingerEquation(Scene):
             GrowFromEdge(arrow, UP),
             GrowFromEdge(wavefunc, UP),
         )
-        self.wait()
+        wait(self)
 
         self.play(
             FadeOut(final),
@@ -587,7 +611,7 @@ class Newton(Scene):
     def construct(self):
         qm = TextMobject("Quantum Mechanics")
         self.play(GrowFromCenter(qm))
-        self.wait()
+        wait(self)
 
         line = Line(
             (qm.get_corner(UL) + qm.get_corner(DL)) / 2,
@@ -604,7 +628,7 @@ class Newton(Scene):
             ApplyMethod(line.shift, LEFT * 3),
             FadeInFrom(newton, RIGHT),
         )
-        self.wait()
+        wait(self)
 
         self.play(
             FadeOutAndShift(qm, LEFT),
@@ -623,12 +647,12 @@ class Newton(Scene):
         group = VGroup(grid, curve, ball)
 
         self.play(ShowCreation(grid, run_time=1), GrowFromCenter(ball))
-        self.wait()
+        wait(self)
 
         self.play(ShowCreation(curve), run_time=3)
         self.play(MoveAlongPath(ball, curve), run_time=3)
 
-        self.wait()
+        wait(self)
 
         newton_sub = TextMobject("Newton's 2. Law of Motion")
         newton_eq = TexMobject(r"F = ma")
@@ -640,7 +664,7 @@ class Newton(Scene):
 
         self.play(FadeOutAndShift(group, DOWN))
         self.play(GrowFromCenter(newton_sub), Write(newton_eq))
-        self.wait()
+        wait(self)
 
         newton_solved = TexMobject(r"x(t) = -\frac{g}{2}t^2 + v_0t + x_0")
         arrow = Vector(direction=DOWN)
@@ -652,7 +676,7 @@ class Newton(Scene):
             GrowFromEdge(arrow, UP),
             GrowFromEdge(newton_solved, UP),
         )
-        self.wait()
+        wait(self)
 
         all_content = VGroup(newton_group, arrow, newton_solved, newton)
 
@@ -679,12 +703,14 @@ class Outline(Scene):
         title.shift(UP * 3)
 
         self.play(GrowFromCenter(title), GrowFromCenter(outline))
-        self.wait()
+        wait(self)
         self.play(FadeOut(title), FadeOut(outline))
 
 
 class TitleScreen(Scene):
     def construct(self):
+        wait(self)
+
         title = TextMobject(
             r"Learning Correlations in \\Quantum Mechanics\\with Neural Networks"
         )
@@ -698,5 +724,6 @@ class TitleScreen(Scene):
 
         self.play(Write(title))
         self.play(Write(subtitle), Write(author))
-        self.wait()
+        wait(self)
         self.play(FadeOut(title), FadeOut(subtitle), FadeOut(author))
+
