@@ -59,14 +59,13 @@ class Conclusions(Scene):
             r"""
         \begin{itemize}
             \item Neural networks capable of improving accuracy of \\existing VMC approaches.
+            \item Opens the door for many new models from machine learning.
             \item Still requires trail and error to find suitable architectures.
             \item Requires significantly more computing time.
             \begin{itemize}
                 \item Asymptotic time-complexity unchanged.
                 \item GPU parallelization can potentially speed up significantly.
             \end{itemize}
-            \item Demonstrates that discriminating models can be used,\\
-                  not only generative.
         \end{itemize}
         """.strip()
         )
@@ -116,14 +115,28 @@ class HeliumResults(GraphScene):
         results.to_edge(UP)
         he_eq.next_to(results, DOWN)
         he_base.move_to(ORIGIN)
-        he_nn.next_to(he_base, DOWN)
+        he_nn.next_to(he_base, DOWN*1.2)
+
+
+        pot = TextMobject(r"Potential:")
+        trad = TextMobject(r"Old:")
+        new = TextMobject(r"New:")
+        pot.next_to(he_eq, LEFT * 2)
+        trad.next_to(he_base, LEFT * 2)
+        new.next_to(he_nn, LEFT * 2)
+        for i in [pot, trad, new]:
+            i.set_color(BLUE_E)
+            i.scale(0.8)
+        new.set_color(GREEN)
+        pot.set_color(GREY)
+
 
         self.play(FadeIn(results))
-        self.play(Write(he_eq))
-        self.play(Write(he_base))
-        self.play(Write(he_nn))
+        self.play(GrowFromEdge(pot, LEFT), Write(he_eq))
+        self.play(GrowFromEdge(trad, LEFT), Write(he_base))
+        self.play(GrowFromEdge(new, LEFT), Write(he_nn))
         wait(self)
-        self.play(*[FadeOut(obj) for obj in [results, he_eq, he_base, he_nn]])
+        self.play(*[FadeOut(obj) for obj in [results, he_eq, he_base, he_nn, pot, trad, new]])
 
         self.setup_axes(animate=True)
         wait(self)
@@ -188,17 +201,31 @@ class QDResults(GraphScene):
             r"\times \text{NN}(\mathbf{x}_1, \mathbf{x}_2)"
         )
 
+
         results.to_edge(UP)
         qd_eq.next_to(results, DOWN)
         qd_base.move_to(ORIGIN)
-        qd_nn.next_to(qd_base, DOWN)
+        qd_base.scale(0.9)
+        qd_nn.next_to(qd_base, DOWN * 1.2)
+
+        pot = TextMobject(r"Potential:")
+        trad = TextMobject(r"Old:")
+        new = TextMobject(r"New:")
+        pot.next_to(qd_eq, LEFT * 2)
+        trad.next_to(qd_base, LEFT * 2)
+        new.next_to(qd_nn, LEFT * 2)
+        for i in [pot, trad, new]:
+            i.set_color(BLUE_E)
+            i.scale(0.8)
+        new.set_color(GREEN)
+        pot.set_color(GREY)
 
         self.play(FadeIn(results))
-        self.play(Write(qd_eq))
-        self.play(Write(qd_base))
-        self.play(Write(qd_nn))
+        self.play(GrowFromEdge(pot, LEFT), Write(qd_eq))
+        self.play(GrowFromEdge(trad, LEFT), Write(qd_base))
+        self.play(GrowFromEdge(new, LEFT), Write(qd_nn))
         wait(self)
-        self.play(*[FadeOut(obj) for obj in [results, qd_eq, qd_base, qd_nn]])
+        self.play(*[FadeOut(obj) for obj in [results, qd_eq, qd_base, qd_nn, pot, trad, new]])
 
         self.setup_axes(animate=True)
         wait(self)
@@ -370,6 +397,12 @@ class WhatToGuess(Scene):
         how.move_to(UP * 2)
         how2.next_to(how, DOWN)
 
+
+        psi = TexMobject(r"\psi(x) = \exp(-\alpha x^2)")
+        arrow = Vector(direction=RIGHT)
+        psi.color = RED_E
+        psi.set_color(RED_E)
+
         list1 = TextMobject(
             r"""
         \begin{enumerate}
@@ -378,6 +411,9 @@ class WhatToGuess(Scene):
         """.strip()
         )
         list1.next_to(how2, DOWN * 2)
+
+        arrow.next_to(list1)
+        psi.next_to(arrow, RIGHT)
 
         list2 = TextMobject(
             r"""
@@ -393,7 +429,9 @@ class WhatToGuess(Scene):
         wait(self)
         self.play(ShowCreation(list1))
         wait(self)
-        self.play(Transform(list1, list2))
+        self.play(GrowFromEdge(arrow, LEFT), GrowFromEdge(psi, LEFT))
+        wait(self)
+        self.play(FadeOut(arrow), FadeOut(psi), Transform(list1, list2))
         wait(self)
 
         self.play(*[FadeOut(obj) for obj in [list1, how, how2]])
@@ -452,7 +490,7 @@ class VMC(GraphScene):
         arrow = Vector(direction=DOWN)
         arrow.scale(0.7)
         arrow.next_to(graph_label, UP / 2)
-        arrow.shift(RIGHT * 0.9)
+        arrow.shift(RIGHT * 1.2)
         alpha_label.next_to(arrow, UP / 2)
 
         self.play(ShowCreation(gauss), run_time=2)
@@ -603,6 +641,7 @@ class SchrodingerEquation(Scene):
     def construct(self):
         plane = NumberPlane()
         qm = TextMobject("Quantum Mechanics")
+        qm.move_to(ORIGIN + 0.1 * RIGHT)
         self.play(FadeInFromLarge(plane, scale_factor=0.1))
         self.play(FadeInFromLarge(qm, scale_factor=0.1))
         wait(self)
